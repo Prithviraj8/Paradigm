@@ -137,7 +137,7 @@ def test(model, dataset_dir, batch_size, device):
         images = images.to(device=device, dtype=torch.float32, memory_format=torch.channels_last)
         true_masks = true_masks.to(device=device, dtype=torch.long)
         output = model(images)
-        pred_mask = torch.argmax(F.softmax(output), axis=1)
+        pred_mask = torch.argmax(F.softmax(output), dim=1)
         plt.figure(figsize=(10, 5))
 
         # plt.subplot(1, 2, 1)  # 1 row, 2 columns, 1st subplot
