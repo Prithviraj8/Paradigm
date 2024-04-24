@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import torch
 
 from UNet.unet import UNet
-from Paradigm.unet_invoke import train_model, test
+from unet_invoke import train_model, test
 
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
