@@ -44,6 +44,30 @@ class SegData(Dataset):
 
         return img, mask
     
+class UnlabeledData(Dataset):
+
+    def __init__(self, videos, transform=None):
+        self.transforms = transform
+        self.images, self.masks = [], []
+        for i in videos:
+            imgs = os.listdir(i)
+            self.images.extend([i + '/' + img for img in imgs if not img.startswith('mask')])
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        img = np.array(Image.open(self.images[idx]))/255
+        try:
+          x = self.images[idx].split('/')
+          image_name = x[-1]
+
+        if self.transforms is not None:
+            mod = self.transforms(image=img)
+            img = mod['image']
+
+        return img
+
 def train_model(
         model,
         dataset_dir,
@@ -153,3 +177,17 @@ def test(model, dataset_dir, batch_size, device):
         plt.subplot(1, 2, 2)  # 1 row, 2 columns, 2nd subplot
         plt.imshow(pred_mask[0].cpu().numpy())
         plt.axis('off')
+
+def generate_unlabeled_mask(model, dataset_dir, batch_size, device):
+    unlabeled_data_path = os.path.join(dataset_dir,'unlabeled/video_') #Change this to your train set path
+    unlabeled_data_dir = [unlabeled_data_path + f"{i:05d}" for i in range(0, 1000)]
+    unlabeled_data = UnlabeledData(unlabeled_data_dir, None)
+    dataloader = torch.utils.data.DataLoader(unlabeled_data, batch_size=batch_size, shuffle=True)
+    for idx, (data) in enumerate(dataloader):
+        images = data.permute(0, 3, 1, 2)
+        images = images.to(device=device, dtype=torch.float32, memory_format=torch.channels_last)
+        output = model(images)
+        pred_mask = torch.argmax(F.softmax(output), dim=1)
+        np.save(os.path.join("../unlabeled_masks", '{idx}_mask.npy'), pred_mask)
+
+        
