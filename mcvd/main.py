@@ -313,12 +313,7 @@ def parse_args_and_config():
                 yaml.dump(vars(args), f, default_flow_style=False)
 
     # add device
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        device = torch.device("mps")
-    else:
-        device = torch.device("cpu")
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     logging.info("Using device: {}".format(device))
     new_config.device = device
 

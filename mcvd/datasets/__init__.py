@@ -14,11 +14,11 @@ from datasets.bair import BAIRDataset
 from datasets.kth import KTHDataset
 from datasets.cityscapes import CityscapesDataset
 from datasets.ucf101 import UCF101Dataset
+from datasets.semantic_seg import SegmentationMaskDataset, NextFramePredDatasets, ElevenVsOneFramePredDatasets
 from torch.utils.data import Subset
-from datasets.paradigm import ParadigmDataset
 
 
-DATASETS = ['CIFAR10', 'CELEBA', 'LSUN', 'FFHQ', 'IMAGENET', 'MOVINGMNIST', 'STOCHASTICMOVINGMNIST', 'BAIR', 'KTH', 'CITYSCAPES', 'UCF101', 'PARADIGM']
+DATASETS = ['CIFAR10', 'CELEBA', 'LSUN', 'FFHQ', 'IMAGENET', 'MOVINGMNIST', 'STOCHASTICMOVINGMNIST', 'BAIR', 'KTH', 'CITYSCAPES', 'UCF101', "SegmentationMaskDataset".upper(), "NextFramePredDatasets".upper(), "ElevenVsOneFramePredDatasets".upper()]
 
 
 def get_dataloaders(data_path, config):
@@ -37,17 +37,17 @@ def get_dataset(data_path, config, video_frames_pred=0, start_at=0):
 
     if config.data.random_flip is False:
         tran_transform = test_transform = transforms.Compose([
-            transforms.Resize((config.data.image_size1, config.data.image_size1,)),
+            transforms.Resize(config.data.image_size),
             transforms.ToTensor()
         ])
     else:
         tran_transform = transforms.Compose([
-            transforms.Resize((config.data.image_size1, config.data.image_size1,)),
+            transforms.Resize(config.data.image_size),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.ToTensor()
         ])
         test_transform = transforms.Compose([
-            transforms.Resize((config.data.image_size1, config.data.image_size1,)),
+            transforms.Resize(config.data.image_size),
             transforms.ToTensor()
         ])
 
@@ -56,6 +56,46 @@ def get_dataset(data_path, config, video_frames_pred=0, start_at=0):
                           transform=tran_transform)
         test_dataset = CIFAR10(data_path, train=False, download=True,
                                transform=test_transform)
+
+    elif config.data.dataset == 'SegmentationMaskDataset':
+        seq_len = config.data.num_frames_cond + getattr(config.data, "num_frames_future", 0) + video_frames_pred
+        dataset = SegmentationMaskDataset(root_dir= data_path, split= 'train', n_frames= seq_len )
+        test_dataset = SegmentationMaskDataset(root_dir= data_path, split= 'val', n_frames= seq_len )
+
+    elif config.data.dataset == 'NextFramePredDatasets':
+        mode = f"{config.data.num_frames_cond}v{config.data.num_frames}"
+
+        train_transform = transforms.Compose([
+            transforms.Resize((config.data.image_size, config.data.image_size)),
+            # transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ToTensor()
+        ])
+
+        test_transform = transforms.Compose([
+            transforms.Resize((config.data.image_size, config.data.image_size)),
+            transforms.ToTensor()
+        ])
+
+        dataset = NextFramePredDatasets(root_dir= data_path, split= 'unlabeled', mode= mode, tranforms= train_transform)
+        test_dataset = NextFramePredDatasets(root_dir= data_path, split= 'val', mode= mode, tranforms= test_transform)
+
+    elif config.data.dataset == 'ElevenVsOneFramePredDatasets':
+        mode = "last"
+
+        train_transform = transforms.Compose([
+            transforms.Resize((config.data.image_size, config.data.image_size)),
+            # transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ToTensor()
+        ])
+
+        test_transform = transforms.Compose([
+            transforms.Resize((config.data.image_size, config.data.image_size)),
+            transforms.ToTensor()
+        ])
+
+        dataset = ElevenVsOneFramePredDatasets(root_dir= data_path, split= 'unlabeled', mode= mode, tranforms= train_transform)
+        test_dataset = ElevenVsOneFramePredDatasets(root_dir= data_path, split= 'val', mode= mode, tranforms= test_transform)
+
 
     elif config.data.dataset.upper() == 'CELEBA':
         if config.data.random_flip:
@@ -214,13 +254,6 @@ def get_dataset(data_path, config, video_frames_pred=0, start_at=0):
                                 random_horizontal_flip=config.data.random_flip)
         test_dataset = UCF101Dataset(data_path, frames_per_sample=frames_per_sample, image_size=config.data.image_size, train=False, random_time=True,
                                      random_horizontal_flip=False, total_videos=256)
-
-    elif config.data.dataset.upper() == "PARADIGM":
-        frames_per_sample = config.data.num_frames_cond + getattr(config.data, "num_frames_future", 0) + video_frames_pred
-        dataset = ParadigmDataset(os.path.join(data_path, "train"), frames_per_sample=frames_per_sample, random_time=True,
-                                  random_horizontal_flip=config.data.random_flip, train=True)
-        test_dataset = ParadigmDataset(os.path.join(data_path, "validation"), frames_per_sample=frames_per_sample, random_time=True,
-                                       random_horizontal_flip=False, train=False)
 
     subset_num = getattr(config.data, "subset", -1)
     if subset_num > 0:

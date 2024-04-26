@@ -23,12 +23,8 @@ from models import get_sigmas, anneal_Langevin_dynamics, anneal_Langevin_dynamic
 from models.ema import EMAHelper
 from runners.ncsn_runner import get_model
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+# device = torch.device('cpu')
 
 
 def parse_args():
@@ -42,8 +38,7 @@ def parse_args():
 # Make and load model
 def load_model(ckpt_path, device=device):
     # Parse config file
-    # with open(os.path.join(os.path.dirname(ckpt_path), 'config.yml'), 'r') as f:
-    with open(os.path.join("configs", 'paradigm.yml'), 'r') as f:
+    with open(os.path.join(os.path.dirname(ckpt_path), 'config.yml'), 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     # Load config file
     config = dict2namespace(config)

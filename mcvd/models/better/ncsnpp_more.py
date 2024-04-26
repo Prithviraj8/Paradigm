@@ -55,7 +55,7 @@ class NCSNpp(nn.Module):
     dropout = getattr(config.model, 'dropout', 0.0)
     resamp_with_conv = True
     self.num_resolutions = num_resolutions = len(ch_mult)
-    self.all_resolutions = all_resolutions = [config.data.image_size1 // (2 ** i) for i in range(num_resolutions)]
+    self.all_resolutions = all_resolutions = [config.data.image_size // (2 ** i) for i in range(num_resolutions)]
 
     self.conditional = conditional = getattr(config.model, 'time_conditional', True)  # noise-conditional
     self.cond_emb = getattr(config.model, 'cond_emb', False)
@@ -418,7 +418,7 @@ class SPADE_NCSNpp(nn.Module):
     dropout = getattr(config.model, 'dropout', 0.0)
     resamp_with_conv = True
     self.num_resolutions = num_resolutions = len(ch_mult)
-    self.all_resolutions = all_resolutions = [config.data.image_size1 // (2 ** i) for i in range(num_resolutions)]
+    self.all_resolutions = all_resolutions = [config.data.image_size // (2 ** i) for i in range(num_resolutions)]
 
     self.conditional = conditional = getattr(config.model, 'time_conditional', True)  # noise-conditional
     self.cond_emb = getattr(config.model, 'cond_emb', False)

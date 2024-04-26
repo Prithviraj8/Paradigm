@@ -1,14 +1,15 @@
 
-export user="satya"
+export user="ak11089"
 
+DL_PROJ = "."
 # this is config, you can change batch size in this config file
-export config="next_frame_DDPM_big11v1-cont"
+export config="paradigm-moving-objects"
 
 # enter dataset folder, should contain train, validation and hidden
-export data="${DL_PROJ}raw-data-1/dataset"
+export data="${DL_PROJ}/dataset"
 
 # Set out put folder path 
-export exp="${DL_PROJ}next-frame-big-11v-1-out"
+export exp="${DL_PROJ}/paradigm-moving-objects-out"
 export config_mod=""
 
 CUDA_VISIBLE_DEVICES=0 python main.py --config configs/${config}.yml --data_path ${data} --exp ${exp} --ni --config_mod ${config_mod}

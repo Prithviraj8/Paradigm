@@ -7,7 +7,7 @@ import glob, os
 #import mediapy as media
 import torch
 from torch.utils.data import DataLoader, Dataset
-import sys
+
 import torch
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
@@ -18,9 +18,10 @@ from tqdm import tqdm
 # import wandb
 
 class TestElevenVsOneFramePredDatasets(Dataset):
-    def __init__(self, root_dir, start=1000, end= 2000, split = 'hidden',  tranforms = None):
+    def __init__(self, root_dir, start=1000, end= 2000, split = 'val',  tranforms = None):
         self.map_idx_image_folder = []
         #self.mode = mode
+        ignore_list = [1117,1119,1121,1126,1313,1314,1325,1542,1545,1573, 1587,1589,1741,1748, 1770,1777,1783,1784,1922,1925, 1100, 1580, 1779, 1913, 1349, 1574, 1128, 1322, 1746, 1914]
         self.data_dir = os.path.join(root_dir, split)
         self.split = split
         self.per_vid_data_len = 11
@@ -69,7 +70,7 @@ class TestElevenVsOneFramePredDatasets(Dataset):
 def stretch_image(X, ch, imsize):
     return X.reshape(len(X), -1, ch, imsize, imsize).permute(0, 2, 1, 4, 3).reshape(len(X), ch, -1, imsize).permute(0, 1, 3, 2)
 
-def predict_one_frame_autoregressive(data_path, ckpt_path, start, end, output_dir, split):
+def predict_one_frame_autoregressive(data_path, ckpt_path, start, end, output_dir):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     scorenet, config = load_model(ckpt_path, device)
         # wandb_run = wandb.init(project= "DL-next-fram-11v1-test", config = config )
@@ -78,14 +79,29 @@ def predict_one_frame_autoregressive(data_path, ckpt_path, start, end, output_di
                 transforms.Resize((config.data.image_size, config.data.image_size)),
                 transforms.ToTensor()
             ])
-    test_dataset = TestElevenVsOneFramePredDatasets(root_dir=data_path, start= start, end = end, split= split, tranforms= test_transform )
-    print("Test data size",test_dataset.__len__())
+    test_dataset = TestElevenVsOneFramePredDatasets(root_dir=data_path, start= start, end = end, split= 'hidden', tranforms= test_transform )
     num_frames_pred = config.sampling.num_frames_pred
     test_loader = DataLoader(test_dataset, batch_size=25, shuffle=False,
                          num_workers=config.data.num_workers, drop_last=False)
 
+    # device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    # scorenet, config = load_model(ckpt_path, device)
+    # # wandb_run = wandb.init(project= "DL-next-fram-11v1-test", config = config )
+    # sampler = partial(ddpm_sampler, config=config)
+    # test_transform = transforms.Compose([
+    #         transforms.Resize((config.data.image_size, config.data.image_size)),
+    #         transforms.ToTensor()
+    #     ])
+
+    # test_dataset = TestElevenVsOneFramePredDatasets(root_dir=data_path,split= 'val', tranforms= test_transform )
+    # num_frames_pred = config.sampling.num_frames_pred
+
+    # test_loader = DataLoader(test_dataset, batch_size=5, shuffle=False,
+    #                      num_workers=config.data.num_workers, drop_last=False)
+    # print(" dev and config dev ", device, config.device)
     avg_mse = 0.0
-    
+    image_transform = transforms.Compose([
+        transforms.ToPILImage()])
     for i, (test_x, video_num) in enumerate(test_loader):
         # print("pred", i)
         test_x = data_transform(config, test_x)
@@ -149,21 +165,5 @@ def predict_one_frame_autoregressive(data_path, ckpt_path, start, end, output_di
 
         # return real, last_frame, pred, video_num
 
-
-#predict_one_frame_autoregressive(data_path= "/scratch/ak11089/final-project/raw-data-1/",ckpt_path= "/scratch/ak11089/final-project/next-frame-big-11v-1-cont/logs/checkpoint_27500.pt", start= 15000,end= 15050,output_dir="/scratch/ak11089/final-project//hidden-out/")
-if __name__ == "__main__":
-    
-    dp = sys.argv[1]
-    ckpt = sys.argv[2]
-    out = sys.argv[3]
-    split = 'hidden'
-    if split == 'hidden':
-        start = 15000
-        end = 17000
-    predict_one_frame_autoregressive(data_path= dp,ckpt_path= ckpt, start= start,end= end,output_dir=out, split=split)
-
-
-
-# predict_one_frame_autoregressive(data_path= "/scratch/ak11089/final-project/raw-data-1/dataset",ckpt_path= "/scratch/ak11089/final-project/next-frame-big-11v-1-cont/logs/checkpoint_27500.pt", start= start,end= end,output_dir="/scratch/ak11089/final-project//hidden-out/")
-
-
+#predict_one_frame_autoregressive(data_path= , ckpt_path, start, end, output_dir)
+predict_one_frame_autoregressive(data_path= "/scratch/ak11089/final-project/raw-data-1/",ckpt_path= "/scratch/ak11089/final-project/next-frame-big-11v-1-cont/logs/checkpoint_27500.pt", start= 15000,end= 15027,output_dir="/scratch/ak11089/final-project//hidden-out/")

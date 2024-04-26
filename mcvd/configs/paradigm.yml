@@ -1,6 +1,6 @@
 training:
   L1: false
-  batch_size: 64
+  batch_size: 8
   n_epochs: 1
   n_iters: 1000
   snapshot_freq: 50000
@@ -17,7 +17,7 @@ sampling:
   final_only: true
   fid: false
   ssim: true
-  fvd: true
+  fvd: false
   denoise: true
   subsample: 200
   num_samples4fid: 10000
@@ -29,7 +29,7 @@ sampling:
   step_lr: 0.0
   n_steps_each: 0
   train: false
-  num_frames_pred: 11
+  num_frames_pred: 1
   clip_before: true
   max_data_iter: 100000
   init_prev_t: -1.0 # if >0, we start next_frame at prev_frame starting with noise t=init_prev_t
@@ -66,7 +66,7 @@ data:
   num_workers: 4
   num_digits: 2
   step_length: 0.1
-  num_frames: 4
+  num_frames: 1
   num_frames_cond: 11
   num_frames_future: 0
   prob_mask_cond: 0.0
@@ -90,7 +90,7 @@ model:
   spec_norm: false
   normalization: InstanceNorm++
   nonlinearity: swish
-  ngf: 64
+  ngf: 32
   ch_mult: 
     - 1
     - 2
@@ -101,13 +101,13 @@ model:
     - 8
     - 16
     - 32 # can use only 16 for traditional
-  n_head_channels: 64 # -1 for traditional
+  n_head_channels: 32 # -1 for traditional
   conditional: true
   noise_in_cond: false
   output_all_frames: false # could be useful especially for 3d models
   cond_emb: false
   spade: True
-  spade_dim: 64
+  spade_dim: 32
 
 optim:
   weight_decay: 0.000
