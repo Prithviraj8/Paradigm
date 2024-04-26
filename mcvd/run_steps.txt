@@ -1,0 +1,3 @@
+CUDA_VISIBLE_DEVICES=0 python3 main.py --config configs/paradigm.yml --data_path ../dataset-2 --exp output --ni
+python3 test_diffusion_hidden.py ../dataset-2/ output/logs/checkpoint_{num}.pt output/results
+python3 run_segmentation.py segmentation.pth, output/results

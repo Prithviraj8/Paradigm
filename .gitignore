@@ -1,4 +1,4 @@
 .ipynb_checkpoints/
 .DS_Store
 __pycache__/
-mcvd-pytorch/.git
+mcvd/smmnist_cat
