@@ -1,7 +1,7 @@
 
 export user="ak11089"
 
-DL_PROJ = "."
+export DL_PROJ="../.."
 # this is config, you can change batch size in this config file
 export config="paradigm-moving-objects"
 

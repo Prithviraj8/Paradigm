@@ -27,7 +27,7 @@ else:
     device = torch.device("cpu")
 # os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 
-dataset_dir = "smalldataset/dataset"
+dataset_dir = "../dataset"
 
 def get_a_random_image(dir=dataset_dir + "/train"):
     all_videos = os.listdir(dir)
@@ -130,4 +130,5 @@ if __name__ == '__main__':
         learning_rate=args.lr,
         amp=args.amp
     )
-    test(model, dataset_dir, args.batch_size, device)
+    # test(model, dataset_dir, args.batch_size, device)
+    torch.save(model.state_dict(), "segmentation2.pth")

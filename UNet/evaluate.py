@@ -11,7 +11,7 @@ def evaluate(net, dataloader, device, amp):
     dice_score = 0
 
     # iterate over the validation set
-    with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
+    with torch.autocast(device.type if device.type != 'cuda' else 'cpu', enabled=amp):
         for idx, (data, targets) in enumerate(dataloader):
             data = data.permute(0, 3, 1, 2)
             images, mask_true = data, targets.type(torch.long).to(device)

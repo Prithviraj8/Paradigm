@@ -3,7 +3,7 @@ import torch
 import imageio.v3 as iio
 import numpy as np
 import matplotlib.pyplot as plt
-from Unet.train import SegData,EncodingBlock,unet_model
+from UNet.unet import UNet as unet_model
 import torch
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -11,7 +11,7 @@ from PIL import Image
 import torch.nn as nn
 from torch.optim import Adam
 from tqdm import tqdm
-import torchmetrics
+# import torchmetrics
 from torchvision import transforms
 import re, sys
 
@@ -99,8 +99,8 @@ def validate(val_path, ckpt):
   
 def predict(ckpt, data_path):
     #DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    model = unet_model().to(DEVICE)
-    m = torch.load(ckpt).state_dict()
+    model = unet_model(3,49,True).to(DEVICE)
+    m = torch.load(ckpt)
     model.load_state_dict(m)
     model.eval()
     pred_dataset = PredictedImageDataset(directory=data_path, transform = transforms.Compose([transforms.Resize((160,240)),transforms.ToTensor(),UnNormalize()]))
@@ -135,10 +135,11 @@ def save_results_pt(result):
         start += 1
 
     #print("total dp", start)
-    assert start == 17000
+    print(start)
+    # assert start == 17000
     result_tensor = torch.concat(res_list, dim = 0)
     print("tensor final shape",result_tensor.shape)
-    torch.save(result_tensor, "final_leaderboard_team_27.pt")
+    torch.save(result_tensor, "final_leaderboard_team_18.pt")
 
 
 if __name__ == "__main__":

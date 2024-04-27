@@ -4,7 +4,7 @@ import wandb
 wandb.login()
 
 # Specify the path to your zip file
-zip_file_path = "/scratch/ak11089/final-project//Unet/final_leaderboard_team_27.pt"
+zip_file_path = "/scratch/ak11089/final-project//Unet/final_leaderboard_team_18.pt"
 
 # Initialize a new W&B run
 run = wandb.init(project="final-pred-upload")

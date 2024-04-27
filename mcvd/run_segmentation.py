@@ -3,7 +3,8 @@ import torch
 import imageio.v3 as iio
 import numpy as np
 import matplotlib.pyplot as plt
-from Unet.train import SegData,EncodingBlock,unet_model
+from Paradigm.UNet.unet import UNet as unet_model
+# from Unet.train import SegData,EncodingBlock,unet_model
 import torch
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -22,8 +23,6 @@ import re, sys
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
 else:
     device = torch.device("cpu")
 
@@ -143,7 +142,7 @@ def save_results_pt(result):
     assert start == 17000
     result_tensor = torch.concat(res_list, dim = 0)
     print("tensor final shape",result_tensor.shape)
-    torch.save(result_tensor, "final_leaderboard_team_27.pt")
+    torch.save(result_tensor, "final_leaderboard_team_18.pt")
 
 
 if __name__ == "__main__":

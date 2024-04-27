@@ -47,7 +47,7 @@ from models import (ddpm_sampler,
 from models.ema import EMAHelper
 from models.fvd.fvd import get_fvd_feats, frechet_distance, load_i3d_pretrained
 from models.unet import UNet_SMLD, UNet_DDPM
-import torchmetrics
+# import torchmetrics
 # import wandb
 #import pdb; pdb.set_trace()
 

@@ -58,9 +58,8 @@ class UnlabeledData(Dataset):
 
     def __getitem__(self, idx):
         img = np.array(Image.open(self.images[idx]))/255
-        try:
-          x = self.images[idx].split('/')
-          image_name = x[-1]
+        x = self.images[idx].split('/')
+        image_name = x[-1]
 
         if self.transforms is not None:
             mod = self.transforms(image=img)
@@ -85,7 +84,7 @@ def train_model(
     train_data_path = os.path.join(dataset_dir,'train/video_') #Change this to your train set path
     val_data_path = os.path.join(dataset_dir,'val/video_') #Change this to your validation path
 
-    train_data_dir = [train_data_path + f"{i:05d}" for i in range(0, 900)]
+    train_data_dir = [train_data_path + f"{i:05d}" for i in range(0, 1000)]
     train_data = SegData(train_data_dir, None)
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
@@ -112,7 +111,7 @@ def train_model(
                 images = images.to(device=device, dtype=torch.float32, memory_format=torch.channels_last)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
 
-                with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
+                with torch.autocast(device.type if device.type != 'cuda' else 'cpu', enabled=amp):
                     masks_pred = model(images)
                     loss = criterion(masks_pred, true_masks)
                     loss += dice_loss(
