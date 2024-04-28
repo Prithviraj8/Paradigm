@@ -1,8 +1,8 @@
 training:
   L1: false
   batch_size: 16
-  n_epochs: 1000
-  n_iters: 100000
+  n_epochs: 10000
+  n_iters: 150000
   snapshot_freq: 800
   snapshot_sampling: false
   sample_freq: 800
@@ -100,7 +100,7 @@ model:
     - 8
     - 16
     - 32 # can use only 16 for traditional
-  n_head_channels: 96 # -1 for traditional
+  n_head_channels: 64 # -1 for traditional
   conditional: true
   noise_in_cond: false
   output_all_frames: false # could be useful especially for 3d models

@@ -1,4 +1,5 @@
 #!/bin/sh
+cd Paradigm
 python3 paradigm_dl_proj_satya_2.py
 cd mcvd
 CUDA_VISIBLE_DEVICES=0 python3 main.py --config configs/paradigm-moving-objects.yml --data_path ../../dataset --exp paradigm-moving-objects-out --ni

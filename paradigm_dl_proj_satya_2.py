@@ -21,8 +21,6 @@ from unet_invoke import train_model, test
 
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
 else:
     device = torch.device("cpu")
 # os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
@@ -117,7 +115,7 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     print(device)
-    visualize()
+    # visualize()
     model = UNet(n_channels=3, n_classes=49, bilinear=False)
     model = model.to(memory_format=torch.channels_last)
     model.to(device=device)
