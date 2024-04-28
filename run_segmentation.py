@@ -11,7 +11,7 @@ from PIL import Image
 import torch.nn as nn
 from torch.optim import Adam
 from tqdm import tqdm
-# import torchmetrics
+import torchmetrics
 from torchvision import transforms
 import re, sys
 
@@ -47,9 +47,7 @@ class PredictedImageDataset(Dataset):
         
         return image, video_number
 
-class UnNormalize(object):
-    def __call__(self, tensor):
-        return tensor * 255
+
 
 
 def load_validation_masks(val_dir, start_index, end_index, new_size=(128, 128)):
@@ -98,12 +96,11 @@ def validate(val_path, ckpt):
     print("jacc score", score)
   
 def predict(ckpt, data_path):
-    #DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    model = unet_model(3,49,True).to(DEVICE)
+    model = unet_model(3, 49, False).to(DEVICE)
     m = torch.load(ckpt)
     model.load_state_dict(m)
     model.eval()
-    pred_dataset = PredictedImageDataset(directory=data_path, transform = transforms.Compose([transforms.Resize((160,240)),transforms.ToTensor(),UnNormalize()]))
+    pred_dataset = PredictedImageDataset(directory=data_path, transform = transforms.Compose([transforms.Resize((160,240)),transforms.ToTensor()]))
     #pred_dataset = PredictedImageDataset(directory=data_path, transform = transforms.Compose([transforms.Resize((160,240)),transforms.ToTensor()]))
     pred_loader = DataLoader(pred_dataset, batch_size=1, shuffle=False)
     results = {}
@@ -136,10 +133,10 @@ def save_results_pt(result):
 
     #print("total dp", start)
     print(start)
-    # assert start == 17000
+    assert start == 17000
     result_tensor = torch.concat(res_list, dim = 0)
     print("tensor final shape",result_tensor.shape)
-    torch.save(result_tensor, "final_leaderboard_team_18.pt")
+    torch.save(result_tensor, "paradigm_segmentation_results.pt")
 
 
 if __name__ == "__main__":
@@ -148,8 +145,3 @@ if __name__ == "__main__":
     diffusion_pred = sys.argv[2]
     r = predict(unet_path,diffusion_pred )
     save_results_pt(r)
-
-# r = predict(unet_model_saved_path,"/scratch/ak11089/final-project//final_pred_hidden/all/" )
-# save_results_pt(r)
-
-# validate("/scratch/ak11089/final-project/val_ad", unet_model_saved_path)

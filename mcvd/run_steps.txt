@@ -1,5 +1,0 @@
-CUDA_VISIBLE_DEVICES=0 python3 main.py --config configs/paradigm-moving-objects.yml --data_path ../dataset --exp paradigm-moving-objects-out --ni
-python3 test_diffusion_hidden.py ../../dataset ../../paradigm-moving-objects-out/logs/checkpoint_3000.pt ../../results
-python3 run_segmentation.py ../segmentation.pth, ../../results/11v1-cont-15000-17000-val-pred/
-
-paradigm-moving-objects-out/logs/config.yml

@@ -72,7 +72,7 @@ def train_model(
         dataset_dir,
         device,
         epochs: int = 5,
-        batch_size: int = 1,
+        batch_size: int = 8,
         learning_rate: float = 1e-5,
         save_checkpoint: bool = True,
         amp: bool = False,
