@@ -81,7 +81,7 @@ def predict_one_frame_autoregressive(data_path, ckpt_path, start, end, output_di
     test_dataset = TestElevenVsOneFramePredDatasets(root_dir=data_path, start= start, end = end, split= split, tranforms= test_transform )
     print("Test data size",test_dataset.__len__())
     num_frames_pred = config.sampling.num_frames_pred
-    test_loader = DataLoader(test_dataset, batch_size=25, shuffle=False,
+    test_loader = DataLoader(test_dataset, batch_size=200, shuffle=False,
                          num_workers=config.data.num_workers, drop_last=False)
 
     avg_mse = 0.0

@@ -1,6 +1,6 @@
 training:
   L1: false
-  batch_size: 16
+  batch_size: 24
   n_epochs: 10000
   n_iters: 150000
   snapshot_freq: 800
@@ -100,13 +100,13 @@ model:
     - 8
     - 16
     - 32 # can use only 16 for traditional
-  n_head_channels: 64 # -1 for traditional
+  n_head_channels: 128 # -1 for traditional
   conditional: true
   noise_in_cond: false
   output_all_frames: false # could be useful especially for 3d models
   cond_emb: false
   spade: false
-  spade_dim: 128
+  spade_dim: 256
 
 optim:
   weight_decay: 0.000

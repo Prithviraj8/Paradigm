@@ -1,8 +1,8 @@
 #!/bin/sh
 cd Paradigm
-python3 paradigm_dl_proj_satya_2.py
+python3 segmentation_training.py
 cd mcvd
 CUDA_VISIBLE_DEVICES=0 python3 main.py --config configs/paradigm-moving-objects.yml --data_path ../../dataset --exp paradigm-moving-objects-out --ni
-python3 test_diffusion_hidden.py ../../dataset paradigm-moving-objects-out/logs/checkpoint_100.pt ../results
+python3 predict.py ../../dataset paradigm-moving-objects-out/logs/checkpoint_100.pt ../results
 cd ..
-python3 run_segmentation.py paradigm_segmentation.pth results/predictions-15000-17000-val/
+python3 generate_segmentation.py paradigm_segmentation.pth results/predictions-15000-17000-val/

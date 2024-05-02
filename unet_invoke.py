@@ -12,14 +12,15 @@ from PIL import Image
 from UNet.utils.dice_score import dice_loss
 from UNet.evaluate import evaluate
 
-class SegData(Dataset):
+class TrainingData(Dataset):
 
-    def __init__(self, videos, transform=None):
-        self.transforms = transform
+    def __init__(self, data):
         self.images, self.masks = [], []
-        for i in videos:
+        for i in data:
             imgs = os.listdir(i)
-            self.images.extend([i + '/' + img for img in imgs if not img.startswith('mask')])
+            for img in imgs:
+                if not img.startswith('mask'):
+                    self.images.append(i + '/' + img)
 
     def __len__(self):
         return len(self.images)
@@ -80,19 +81,17 @@ def train_model(
         momentum: float = 0.999,
         gradient_clipping: float = 1.0,
 ):
-    # 1. Create dataset
     train_data_path = os.path.join(dataset_dir,'train/video_') #Change this to your train set path
     val_data_path = os.path.join(dataset_dir,'val/video_') #Change this to your validation path
 
     train_data_dir = [train_data_path + f"{i:05d}" for i in range(0, 1000)]
-    train_data = SegData(train_data_dir, None)
+    train_data = TrainingData(train_data_dir)
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
     val_data_dir = [val_data_path + f"{i:05d}" for i in range(1000, 2000)]
-    val_data = SegData(val_data_dir, None)
+    val_data = TrainingData(val_data_dir)
     val_dataloader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, shuffle=True)
 
-    # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
     optimizer = optim.RMSprop(model.parameters(),
                               lr=learning_rate, weight_decay=weight_decay, momentum=momentum, foreach=True)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=5)  # goal: maximize Dice score
@@ -100,7 +99,6 @@ def train_model(
     criterion = nn.CrossEntropyLoss()
     global_step = 0
 
-    # 5. Begin training
     for epoch in range(1, epochs + 1):
         model.train()
         epoch_loss = 0
@@ -133,26 +131,15 @@ def train_model(
 
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
-                # Evaluation round
-                # division_step = (10 // (5 * batch_size))
-                # if division_step > 0:
-                #     if global_step % division_step == 0:
             val_score = evaluate(model, val_dataloader, device, amp)
             print(f"Epoch: {epoch}, dice-score: {val_score}")
             scheduler.step(val_score)
-
-        # if save_checkpoint:
-        #     Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
-        #     state_dict = model.state_dict()
-        #     state_dict['mask_values'] = dataset.mask_values
-        #     torch.save(state_dict, str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
-        #     logging.info(f'Checkpoint {epoch} saved!')
 
 
 def test(model, dataset_dir, batch_size, device):
     test_data_path = os.path.join(dataset_dir,'train/video_') #Change this to your train set path
     test_data_dir = [test_data_path + f"{i:05d}" for i in range(901, 1000)]
-    test_data = SegData(test_data_dir, None)
+    test_data = TrainingData(test_data_dir, None)
     test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=True)
     for idx, (data, targets) in enumerate(test_dataloader):
         data = data.permute(0, 3, 1, 2)
