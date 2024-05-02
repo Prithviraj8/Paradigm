@@ -10,13 +10,14 @@ def validate(val_path, predTensor):
     val_masks = loadMasks(val_path + '/video_', 1000, 2000)
     preds = []
     masks = []
-    for num in result:     
-        valMask = torch.from_numpy(val_masks[num-1000]).unsqueeze(0)
+    for i in range(len(result)):  
+        valMask = torch.from_numpy(val_masks[i])
         masks.append(valMask)
-        preds.append(result[num].to("cpu"))
+        preds.append(result[i].to("cpu"))
     preds = torch.concat(preds, dim = 0)
     masks = torch.concat(masks, dim = 0)
     print("final pred shape",preds.shape)
+    print("final masks shape",masks.shape)
     score = jaccard(preds, masks)
     print("jacc score", score)
 
@@ -24,14 +25,18 @@ def validate(val_path, predTensor):
 def loadMasks(dir, start, end):
     masks = []
     for i in range(start, end):
-        path = f'{dir}{i}/mask.npy'
+        path = f'{dir}{i:05}/mask.npy'
         mask = np.load(path)
-        maskImage = Image.fromarray(mask[21])
-        masks.append(np.array(maskImage))
+        if len(mask) < 22:
+          mask = np.zeros((160, 240))
+          masks.append(np.array(mask))
+        else:
+          maskImage = Image.fromarray(mask[21])
+          masks.append(np.array(maskImage))
     return masks
 
 if __name__ == "__main__":
     
-    valPath = sys.argv[1]
-    predTensor = sys.argv[2]
+    predTensor = sys.argv[1]
+    valPath = sys.argv[2]
     validate(valPath, predTensor)

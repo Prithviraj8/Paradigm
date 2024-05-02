@@ -37,12 +37,6 @@ class TrainingData(Dataset):
           mask = mask[mask_idx, :, :]
         except:
           mask = np.zeros((160, 240))
-
-        if self.transforms is not None:
-            mod = self.transforms(image=img, mask=mask)
-            img = mod['image']
-            mask = mod['mask']
-
         return img, mask
     
 class UnlabeledData(Dataset):
@@ -59,13 +53,6 @@ class UnlabeledData(Dataset):
 
     def __getitem__(self, idx):
         img = np.array(Image.open(self.images[idx]))/255
-        x = self.images[idx].split('/')
-        image_name = x[-1]
-
-        if self.transforms is not None:
-            mod = self.transforms(image=img)
-            img = mod['image']
-
         return img
 
 def train_model(
